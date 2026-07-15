@@ -3,7 +3,9 @@ import {
   computed,
   onMounted,
   ref,
+  watch,
 } from 'vue'
+import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { getPosts } from '@/services/boardStorage'
 
@@ -106,6 +108,18 @@ const paginatedPosts = computed(() => {
 onMounted(() => {
   loadPosts()
 })
+
+const route = useRoute()
+
+watch(
+  () => route.fullPath,
+  (to) => {
+    // when returning to the list route, reload posts
+    if (route.path === '/') {
+      loadPosts()
+    }
+  },
+)
 
 function loadPosts() {
   posts.value = getPosts()

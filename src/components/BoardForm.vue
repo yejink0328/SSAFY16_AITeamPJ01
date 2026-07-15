@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   createPost,
   getPostById,
@@ -18,6 +19,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['cancel', 'saved'])
+const router = useRouter()
 
 const categories = [
   { value: '맛집', icon: '🍜' },
@@ -123,6 +125,8 @@ function submitPost() {
     }
 
     emit('saved', savedPost.id)
+    // SPA navigation: go to the newly created/updated post detail
+    router.push({ path: `/board/${savedPost.id}` })
   } catch (error) {
     errors.password = error.message
   }
