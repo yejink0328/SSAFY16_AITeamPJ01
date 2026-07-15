@@ -121,12 +121,20 @@ async function applyFilter() {
 
   const items = await filterByCategoryAndDistrict(category.value, district.value, 500)
   const kakao = window.kakao
-  const markerList = items.map((it) => {
+    const markerList = items.map((it) => {
     const position = new kakao.maps.LatLng(it.mapy, it.mapx)
     const marker = new kakao.maps.Marker({ position })
-    const infowindow = new kakao.maps.InfoWindow({
-      content: `<div style="padding:8px;max-width:200px"><strong>${it.title}</strong><div>${it.addr}</div><div>${it.tel}</div></div>`,
-    })
+    const imgHtml = it.image ? `<div class="info-image"><img src="${it.image}" alt="${it.title}" /></div>` : ''
+    const infoHtml = `
+      <div class="info-window" style="max-width:260px">
+        ${imgHtml}
+        <div class="info-body" style="padding:8px">
+          <strong style="display:block;margin-bottom:6px">${it.title}</strong>
+          <div style="font-size:13px;color:#555">${it.addr}</div>
+        </div>
+      </div>
+    `
+    const infowindow = new kakao.maps.InfoWindow({ content: infoHtml })
     marker.addListener('click', () => {
       // close previously opened info window
       try {
@@ -193,6 +201,8 @@ onBeforeUnmount(() => {
   padding: 16px;
   color:#666;
 }
+.info-image img { width:100%; height:auto; border-radius:6px; display:block }
+.info-body { padding: 8px }
 label { font-size:14px }
 button { padding:6px 10px }
 </style>

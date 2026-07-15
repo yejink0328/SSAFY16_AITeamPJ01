@@ -71,12 +71,13 @@ export async function filterByCategoryAndDistrict(category = '관광지', distri
   const mapped = filtered
     .filter((it) => it.mapx && it.mapy)
     .map((it) => ({
-      title: it.title,
-      addr: it.addr1,
-      tel: it.tel || '정보 없음',
-      mapx: Number(it.mapx),
-      mapy: Number(it.mapy),
-      contentid: it.contentid,
+        title: it.title,
+        addr: it.addr1,
+        tel: it.tel || '정보 없음',
+        mapx: Number(it.mapx),
+        mapy: Number(it.mapy),
+        contentid: it.contentid,
+        image: it.firstimage || it.firstimage2 || '',
     }))
 
   return mapped.slice(0, limit)
