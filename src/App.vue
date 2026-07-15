@@ -1,7 +1,7 @@
 <script setup>
-import BoardList from './components/BoardList.vue'
+// App acts as router host — individual pages are rendered via `router-view`
 </script>
 
 <template>
-  <BoardList />
+  <router-view />
 </template>
