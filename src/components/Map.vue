@@ -124,11 +124,13 @@ async function applyFilter() {
     const markerList = items.map((it) => {
     const position = new kakao.maps.LatLng(it.mapy, it.mapx)
     const marker = new kakao.maps.Marker({ position })
-    const imgHtml = it.image ? `<div class="info-image"><img src="${it.image}" alt="${it.title}" /></div>` : ''
+    const imgHtml = it.image
+      ? `<div style="flex:0 0 96px; margin-right:8px"><img src="${it.image}" alt="${it.title}" style="width:96px;height:96px;object-fit:cover;border-radius:8px;display:block;"/></div>`
+      : ''
     const infoHtml = `
-      <div class="info-window" style="max-width:260px">
+      <div style="display:flex;gap:8px;max-width:260px;align-items:flex-start">
         ${imgHtml}
-        <div class="info-body" style="padding:8px">
+        <div style="padding:8px;flex:1;min-width:0">
           <strong style="display:block;margin-bottom:6px">${it.title}</strong>
           <div style="font-size:13px;color:#555">${it.addr}</div>
         </div>
