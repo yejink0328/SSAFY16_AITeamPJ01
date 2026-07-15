@@ -12,20 +12,32 @@
 </template>
 
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
+let router = null
+try {
+  // useRouter may throw if router is not provided yet; catch and fallback
+  // eslint-disable-next-line vue/prefer-use-router
+  router = (await import('vue-router')).useRouter()
+} catch (e) {
+  // ignore — we'll fallback to location.href when router unavailable
+  console.warn('NavBar: router not available yet, will fallback to full navigation')
+}
 const route = useRoute()
 
 function goTo(path) {
   console.log('[NavBar] navigate to', path)
-  router.push(path).then(() => {
-    console.log('[NavBar] navigation succeeded, current:', router.currentRoute.value.fullPath)
-  }).catch((err) => {
-    console.error('[NavBar] navigation error', err)
-    // show visible alert so user notices
-    window.alert('Navigation error: ' + (err && err.message ? err.message : String(err)))
-  })
+  if (router && router.push) {
+    router.push(path).then(() => {
+      console.log('[NavBar] navigation succeeded, current:', router.currentRoute.value.fullPath)
+    }).catch((err) => {
+      console.error('[NavBar] navigation error', err)
+      window.alert('Navigation error: ' + (err && err.message ? err.message : String(err)))
+    })
+  } else {
+    // fallback: use full page navigation
+    window.location.href = path
+  }
 }
 </script>
 
