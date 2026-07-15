@@ -43,6 +43,7 @@ const mapEl = ref(null)
 let map = null
 let markers = []
 let clusterer = null
+let currentInfoWindow = null
 const loadState = ref('idle') // 'idle' | 'loading' | 'ready' | 'error'
 const loadError = ref('')
 
@@ -108,6 +109,12 @@ async function applyFilter() {
     return
   }
   // clear existing markers
+  // close any open info window
+  if (currentInfoWindow && currentInfoWindow.close) {
+    try { currentInfoWindow.close() } catch (e) {}
+    currentInfoWindow = null
+  }
+
   markers.forEach((m) => m.setMap(null))
   markers = []
   if (clusterer && clusterer.clear) clusterer.clear()
@@ -120,7 +127,16 @@ async function applyFilter() {
     const infowindow = new kakao.maps.InfoWindow({
       content: `<div style="padding:8px;max-width:200px"><strong>${it.title}</strong><div>${it.addr}</div><div>${it.tel}</div></div>`,
     })
-    marker.addListener('click', () => infowindow.open(map, marker))
+    marker.addListener('click', () => {
+      // close previously opened info window
+      try {
+        if (currentInfoWindow && currentInfoWindow.close) currentInfoWindow.close()
+      } catch (e) {
+        // ignore
+      }
+      infowindow.open(map, marker)
+      currentInfoWindow = infowindow
+    })
     return marker
   })
 
@@ -152,6 +168,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   markers.forEach((m) => m.setMap(null))
   if (clusterer && clusterer.clear) clusterer.clear()
+  if (currentInfoWindow && currentInfoWindow.close) {
+    try { currentInfoWindow.close() } catch (e) {}
+    currentInfoWindow = null
+  }
 })
 </script>
 
