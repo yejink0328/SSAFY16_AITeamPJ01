@@ -1,0 +1,22 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
