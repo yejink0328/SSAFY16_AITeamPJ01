@@ -4,7 +4,7 @@ import {
   ref,
   watch,
 } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import BoardPasswordModal from '@/components/BoardPasswordModal.vue'
 import {
   deletePost,
@@ -26,6 +26,7 @@ const emit = defineEmits([
   'deleted',
 ])
 const router = useRouter()
+const route = useRoute()
 
 const post = ref(null)
 const modalOpen = ref(false)
@@ -47,6 +48,14 @@ onMounted(() => {
 
 watch(
   () => props.postId,
+  () => {
+    loadPost()
+  },
+)
+
+// also reload when route param changes (robustness for navigation)
+watch(
+  () => route.params.id,
   () => {
     loadPost()
   },

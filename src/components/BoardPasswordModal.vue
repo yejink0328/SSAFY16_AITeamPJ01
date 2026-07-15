@@ -44,11 +44,13 @@ function closeModal() {
 }
 
 function confirmPassword() {
-  if (!password.value) {
+  const raw = String(password.value || '')
+  const trimmed = raw.trim()
+  if (!trimmed) {
     return
   }
 
-  emit('confirm', password.value)
+  emit('confirm', trimmed)
 }
 </script>
 
