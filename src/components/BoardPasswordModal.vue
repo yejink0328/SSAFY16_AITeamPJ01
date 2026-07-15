@@ -1,5 +1,9 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import {
+  nextTick,
+  ref,
+  watch,
+} from 'vue'
 
 const props = defineProps({
   open: {
@@ -20,50 +24,31 @@ const emit = defineEmits(['close', 'confirm'])
 
 const password = ref('')
 const passwordInput = ref(null)
-const openCycle = ref(0)
-
-async function resetAndFocus() {
-  password.value = ''
-  openCycle.value += 1
-  await nextTick()
-  passwordInput.value?.focus()
-}
 
 watch(
   () => props.open,
   async (isOpen) => {
-    if (isOpen) {
-      await resetAndFocus()
-    } else {
-      password.value = ''
+    if (!isOpen) {
+      return
     }
-  },
-  { immediate: true },
-)
 
-watch(
-  () => props.action,
-  async () => {
-    if (props.open) {
-      await resetAndFocus()
-    }
+    password.value = ''
+
+    await nextTick()
+    passwordInput.value?.focus()
   },
 )
 
 function closeModal() {
-  password.value = ''
   emit('close')
 }
 
 function confirmPassword() {
-  const enteredPassword = password.value
-
-  if (!enteredPassword) {
-    passwordInput.value?.focus()
+  if (!password.value) {
     return
   }
 
-  emit('confirm', enteredPassword)
+  emit('confirm', password.value)
 }
 </script>
 
@@ -78,38 +63,57 @@ function confirmPassword() {
         class="password-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="password-modal-title"
+        :aria-label="
+          action === 'delete'
+            ? '게시글 삭제'
+            : '게시글 수정'
+        "
       >
-        <div class="modal-header">
-          <div>
-            <p>LOCALHUB PASSWORD</p>
-            <h2 id="password-modal-title">
-              {{ action === 'delete' ? '게시글 삭제' : '게시글 수정' }}
-            </h2>
-          </div>
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="닫기"
+          @click="closeModal"
+        >
+          ×
+        </button>
 
-          <button
-            type="button"
-            class="modal-close"
-            aria-label="닫기"
-            @click="closeModal"
-          >
-            ×
-          </button>
+        <div
+          class="modal-icon"
+          :class="{
+            'modal-icon--danger':
+              action === 'delete',
+          }"
+        >
+          {{ action === 'delete' ? '🗑️' : '🔐' }}
+        </div>
+
+        <div class="modal-header">
+          <p>
+            {{
+              action === 'delete'
+                ? 'DELETE POST'
+                : 'EDIT POST'
+            }}
+          </p>
+
+          <h2>
+            {{
+              action === 'delete'
+                ? '게시글을 삭제할까요?'
+                : '게시글을 수정할까요?'
+            }}
+          </h2>
         </div>
 
         <p class="modal-description">
           작성할 때 입력한 비밀번호를 입력해주세요.
-          확인 후 {{ action === 'delete' ? '삭제' : '수정 화면으로 이동' }}합니다.
+          비밀번호가 일치해야 작업을 진행할 수 있습니다.
         </p>
 
-        <form
-          :key="openCycle"
-          autocomplete="off"
-          @submit.prevent="confirmPassword"
-        >
+        <form @submit.prevent="confirmPassword">
           <label for="board-password">
-            비밀번호
+            수정·삭제 비밀번호
           </label>
 
           <input
@@ -118,8 +122,7 @@ function confirmPassword() {
             v-model="password"
             type="password"
             maxlength="30"
-            autocomplete="new-password"
-            name="localhub-board-password-check"
+            autocomplete="current-password"
             placeholder="비밀번호 입력"
           />
 
@@ -127,7 +130,7 @@ function confirmPassword() {
             v-if="errorMessage"
             class="error-message"
           >
-            {{ errorMessage }}
+            ⚠ {{ errorMessage }}
           </p>
 
           <div class="modal-buttons">
@@ -142,9 +145,17 @@ function confirmPassword() {
             <button
               type="submit"
               class="primary-button"
-              :class="{ danger: action === 'delete' }"
+              :class="{
+                'primary-button--danger':
+                  action === 'delete',
+              }"
+              :disabled="!password"
             >
-              {{ action === 'delete' ? '삭제 확인' : '수정 확인' }}
+              {{
+                action === 'delete'
+                  ? '삭제 계속하기'
+                  : '확인'
+              }}
             </button>
           </div>
         </form>
@@ -159,130 +170,153 @@ function confirmPassword() {
   inset: 0;
   z-index: 1000;
   display: grid;
-  padding: 20px;
   place-items: center;
-  background: rgba(27, 48, 54, 0.48);
-  backdrop-filter: blur(7px);
-  animation: backdropIn 0.2s ease both;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(6px);
 }
 
 .password-modal {
-  width: min(100%, 430px);
-  padding: 26px;
-  border: 1px solid rgba(213, 229, 230, 0.9);
-  border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 28px 80px rgba(24, 57, 63, 0.22);
-  animation: modalIn 0.24s ease both;
+  position: relative;
+  width: min(100%, 450px);
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.32);
+  animation: modal-open 0.2s ease-out;
 }
 
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-}
+@keyframes modal-open {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
 
-.modal-header p {
-  margin: 0 0 5px;
-  color: #689197;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: #294b51;
-  font-size: 23px;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-close {
-  width: 36px;
-  height: 36px;
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 34px;
+  height: 34px;
   border: 0;
-  border-radius: 50%;
-  background: #f0f6f6;
-  color: #71868c;
-  font-size: 25px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 23px;
   cursor: pointer;
 }
 
+.modal-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 18px;
+  background: #eff6ff;
+  font-size: 27px;
+}
+
+.modal-icon--danger {
+  background: #fef2f2;
+}
+
+.modal-header {
+  margin-top: 22px;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.modal-header h2 {
+  margin: 6px 0 0;
+  color: #172033;
+  font-size: 25px;
+  letter-spacing: -0.03em;
+}
+
 .modal-description {
-  margin: 17px 0 21px;
-  color: #71858c;
+  margin: 14px 0 22px;
+  color: #64748b;
+  font-size: 14px;
   line-height: 1.7;
 }
 
 .password-modal label {
   display: block;
   margin-bottom: 8px;
-  color: #425f66;
-  font-weight: 850;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .password-modal input {
   width: 100%;
-  height: 48px;
+  height: 49px;
   padding: 0 14px;
-  border: 1px solid #cbdcdc;
+  border: 1px solid #dbe3eb;
   border-radius: 12px;
-  color: #314d54;
+  box-sizing: border-box;
+  font: inherit;
 }
 
 .password-modal input:focus {
-  border-color: #75a2a6;
-  outline: 0;
-  box-shadow: 0 0 0 4px rgba(96, 148, 153, 0.13);
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .error-message {
   margin: 10px 0 0;
-  color: #b75e59;
-  font-size: 14px;
+  color: #dc2626;
+  font-size: 13px;
 }
 
 .modal-buttons {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 23px;
+  margin-top: 26px;
 }
 
 .primary-button,
 .secondary-button {
-  min-height: 43px;
-  padding: 0 18px;
-  border-radius: 11px;
-  font-weight: 850;
+  min-height: 46px;
+  border-radius: 12px;
+  font-weight: 900;
   cursor: pointer;
 }
 
 .primary-button {
-  border: 1px solid #5d9197;
-  background: #5d9197;
-  color: #fff;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
 }
 
-.primary-button.danger {
-  border-color: #b97772;
-  background: #b97772;
+.primary-button--danger {
+  border-color: #dc2626;
+  background: #dc2626;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .secondary-button {
-  border: 1px solid #d1dfe0;
-  background: #fff;
-  color: #5a7177;
-}
-
-@keyframes backdropIn {
-  from { opacity: 0; }
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.97);
-  }
+  border: 1px solid #d7dee7;
+  background: #ffffff;
+  color: #475569;
 }
 </style>
