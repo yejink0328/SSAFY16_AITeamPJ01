@@ -4,6 +4,7 @@ import {
   ref,
   watch,
 } from 'vue'
+import { useRouter } from 'vue-router'
 import BoardPasswordModal from '@/components/BoardPasswordModal.vue'
 import {
   deletePost,
@@ -24,6 +25,7 @@ const emit = defineEmits([
   'edit',
   'deleted',
 ])
+const router = useRouter()
 
 const post = ref(null)
 const modalOpen = ref(false)
@@ -56,6 +58,7 @@ function loadPost() {
   if (!selectedPost) {
     alert('게시글을 찾을 수 없습니다.')
     emit('back')
+    router.push({ path: '/' })
     return
   }
 
@@ -90,6 +93,7 @@ function confirmPassword(password) {
   if (modalAction.value === 'edit') {
     closePasswordModal()
     emit('edit', props.postId)
+    router.push({ path: '/write', query: { mode: 'edit', id: props.postId } })
     return
   }
 
@@ -106,6 +110,7 @@ function confirmPassword(password) {
     closePasswordModal()
     alert('게시글이 삭제되었습니다.')
     emit('deleted')
+    router.push({ path: '/' })
   } catch (error) {
     modalError.value = error.message
   }
