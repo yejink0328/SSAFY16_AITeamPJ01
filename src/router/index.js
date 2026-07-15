@@ -6,8 +6,8 @@ const BoardForm = () => import('../components/BoardForm.vue')
 const Map = () => import('../components/Map.vue')
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/community', component: BoardList },
+  { path: '/', component: BoardList },
+  { path: '/community', redirect: '/' },
   { path: '/board/:id', component: BoardDetail, props: (route) => ({ postId: route.params.id }) },
   { path: '/map', component: Map },
   {

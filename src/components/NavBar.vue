@@ -3,9 +3,8 @@
     <div class="nav-inner">
       <div class="logo">LocalHub</div>
       <nav class="links">
-        <router-link to="/" class="nav-link">Main</router-link>
+        <router-link to="/" class="nav-link">Community</router-link>
         <router-link to="/map" class="nav-link">Map</router-link>
-        <router-link to="/community" class="nav-link">Community</router-link>
       </nav>
     </div>
   </header>

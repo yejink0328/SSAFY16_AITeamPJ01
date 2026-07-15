@@ -67,7 +67,7 @@ function loadPost() {
   if (!selectedPost) {
     alert('게시글을 찾을 수 없습니다.')
     emit('back')
-    router.push({ path: '/community' })
+    router.push({ path: '/' })
     return
   }
 
@@ -89,7 +89,7 @@ function closePasswordModal() {
 
 function goBack() {
   emit('back')
-  router.push({ path: '/community' })
+  router.push({ path: '/' })
 }
 
 function confirmPassword(password) {
@@ -124,7 +124,7 @@ function confirmPassword(password) {
     closePasswordModal()
     alert('게시글이 삭제되었습니다.')
     emit('deleted')
-    router.push({ path: '/community' })
+    router.push({ path: '/' })
   } catch (error) {
     modalError.value = error.message
   }
