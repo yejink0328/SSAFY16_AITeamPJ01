@@ -5,6 +5,9 @@
     </div>
 
     <div v-else>
+      <div v-if="loadState === 'loading'" class="map-placeholder">지도를 로딩 중입니다...</div>
+      <div v-else-if="loadState === 'error'" class="map-placeholder">오류: {{ loadError }}<br/>환경변수 `VITE_KAKAO_KEY`를 확인하세요.</div>
+      <div v-else>
       <div class="controls">
         <label>카테고리
           <select v-model="category">
@@ -17,7 +20,8 @@
         <button @click="applyFilter">적용</button>
       </div>
 
-      <div ref="mapEl" class="kakao-map" />
+        <div ref="mapEl" class="kakao-map" />
+      </div>
     </div>
   </div>
 </template>
@@ -36,6 +40,8 @@ const mapEl = ref(null)
 let map = null
 let markers = []
 let clusterer = null
+const loadState = ref('idle') // 'idle' | 'loading' | 'ready' | 'error'
+const loadError = ref('')
 
 const categories = ['관광지','숙박','축제공연행사','문화시설','레포츠','여행코스','쇼핑']
 
@@ -50,7 +56,7 @@ function loadKakaoScript(key) {
     script.async = true
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${key}&autoload=false&libraries=clusterer,services`
     script.onload = () => resolve()
-    script.onerror = reject
+    script.onerror = (e) => reject(new Error('Failed to load Kakao Maps SDK'))
     document.head.appendChild(script)
   })
 }
@@ -92,10 +98,22 @@ async function applyFilter() {
 
 onMounted(() => {
   if (!effectiveKey) {
+    loadState.value = 'error'
+    loadError.value = '카카오 앱키가 설정되어 있지 않습니다. .env에 VITE_KAKAO_KEY를 설정하거나 Map 컴포넌트에 apiKey prop을 전달하세요.'
     console.warn('Map.vue: apiKey not provided — map will not load')
     return
   }
-  initMap(effectiveKey).catch((e) => console.error('Kakao load error', e))
+
+  loadState.value = 'loading'
+  initMap(effectiveKey)
+    .then(() => {
+      loadState.value = 'ready'
+    })
+    .catch((e) => {
+      console.error('Kakao load error', e)
+      loadState.value = 'error'
+      loadError.value = e && e.message ? e.message : String(e)
+    })
 })
 
 onBeforeUnmount(() => {
