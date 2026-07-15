@@ -4,9 +4,11 @@ import {
   onMounted,
   ref,
 } from 'vue'
+import { useRouter } from 'vue-router'
 import { getPosts } from '@/services/boardStorage'
 
 const emit = defineEmits(['select-post', 'write'])
+const router = useRouter()
 
 const posts = ref([])
 const searchKeyword = ref('')
@@ -119,11 +121,14 @@ function selectCategory(category) {
 }
 
 function openPost(postId) {
+  // emit for backward compatibility, and navigate using router for SPA
   emit('select-post', postId)
+  router.push({ path: `/board/${postId}` })
 }
 
 function openWriteForm() {
   emit('write')
+  router.push({ path: '/write' })
 }
 
 function changePage(page) {
