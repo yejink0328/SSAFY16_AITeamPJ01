@@ -6,17 +6,26 @@
         <a href="#" class="nav-link" @click.prevent="goTo('/')">Community</a>
         <a href="#" class="nav-link" @click.prevent="goTo('/map')">Map</a>
       </nav>
+      <div class="current-route">{{ route.path }}</div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
 function goTo(path) {
-  router.push(path).catch(() => {})
+  console.log('[NavBar] navigate to', path)
+  router.push(path).then(() => {
+    console.log('[NavBar] navigation succeeded, current:', router.currentRoute.value.fullPath)
+  }).catch((err) => {
+    console.error('[NavBar] navigation error', err)
+    // show visible alert so user notices
+    window.alert('Navigation error: ' + (err && err.message ? err.message : String(err)))
+  })
 }
 </script>
 
