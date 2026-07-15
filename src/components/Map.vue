@@ -63,17 +63,42 @@ function loadKakaoScript(key) {
 
 async function initMap(key) {
   await loadKakaoScript(key)
+  // Wait until mapEl is attached to document
+  const waitForElement = async (timeout = 2000) => {
+    const interval = 100
+    let waited = 0
+    while ((!mapEl.value || !document.contains(mapEl.value)) && waited < timeout) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((r) => setTimeout(r, interval))
+      waited += interval
+    }
+    return Boolean(mapEl.value && document.contains(mapEl.value))
+  }
+
+  const ready = await waitForElement(3000)
+  if (!ready) {
+    throw new Error('Map container not available in DOM')
+  }
+
   window.kakao.maps.load(() => {
-    const center = new window.kakao.maps.LatLng(37.566826, 126.978656)
-    map = new window.kakao.maps.Map(mapEl.value, { center, level: 8 })
-    clusterer = new window.kakao.maps.MarkerClusterer({ map, averageCenter: true, minLevel: 6 })
-    // initial load
-    applyFilter()
+    try {
+      const center = new window.kakao.maps.LatLng(37.566826, 126.978656)
+      map = new window.kakao.maps.Map(mapEl.value, { center, level: 8 })
+      clusterer = new window.kakao.maps.MarkerClusterer({ map, averageCenter: true, minLevel: 6 })
+      // initial load
+      applyFilter()
+    } catch (err) {
+      console.error('Map init error', err)
+      throw err
+    }
   })
 }
 
 async function applyFilter() {
-  if (!map) return
+  if (!map) {
+    console.warn('applyFilter called but map is not initialized')
+    return
+  }
   // clear existing markers
   markers.forEach((m) => m.setMap(null))
   markers = []
