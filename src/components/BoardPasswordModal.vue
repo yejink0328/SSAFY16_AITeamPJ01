@@ -1,5 +1,9 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import {
+  nextTick,
+  ref,
+  watch,
+} from 'vue'
 
 const props = defineProps({
   open: {
@@ -59,29 +63,57 @@ function confirmPassword() {
         class="password-modal"
         role="dialog"
         aria-modal="true"
+        :aria-label="
+          action === 'delete'
+            ? '게시글 삭제'
+            : '게시글 수정'
+        "
       >
-        <div class="modal-header">
-          <h2>
-            {{ action === 'delete' ? '게시글 삭제' : '게시글 수정' }}
-          </h2>
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="닫기"
+          @click="closeModal"
+        >
+          ×
+        </button>
 
-          <button
-            type="button"
-            class="modal-close"
-            aria-label="닫기"
-            @click="closeModal"
-          >
-            ×
-          </button>
+        <div
+          class="modal-icon"
+          :class="{
+            'modal-icon--danger':
+              action === 'delete',
+          }"
+        >
+          {{ action === 'delete' ? '🗑️' : '🔐' }}
+        </div>
+
+        <div class="modal-header">
+          <p>
+            {{
+              action === 'delete'
+                ? 'DELETE POST'
+                : 'EDIT POST'
+            }}
+          </p>
+
+          <h2>
+            {{
+              action === 'delete'
+                ? '게시글을 삭제할까요?'
+                : '게시글을 수정할까요?'
+            }}
+          </h2>
         </div>
 
         <p class="modal-description">
-          작성할 때 입력한 수정용 비밀번호를 입력해주세요.
+          작성할 때 입력한 비밀번호를 입력해주세요.
+          비밀번호가 일치해야 작업을 진행할 수 있습니다.
         </p>
 
         <form @submit.prevent="confirmPassword">
           <label for="board-password">
-            수정용 비밀번호
+            수정·삭제 비밀번호
           </label>
 
           <input
@@ -98,7 +130,7 @@ function confirmPassword() {
             v-if="errorMessage"
             class="error-message"
           >
-            {{ errorMessage }}
+            ⚠ {{ errorMessage }}
           </p>
 
           <div class="modal-buttons">
@@ -113,9 +145,17 @@ function confirmPassword() {
             <button
               type="submit"
               class="primary-button"
+              :class="{
+                'primary-button--danger':
+                  action === 'delete',
+              }"
               :disabled="!password"
             >
-              확인
+              {{
+                action === 'delete'
+                  ? '삭제 계속하기'
+                  : '확인'
+              }}
             </button>
           </div>
         </form>
@@ -132,83 +172,129 @@ function confirmPassword() {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(6px);
 }
 
 .password-modal {
-  width: min(100%, 420px);
-  padding: 24px;
-  border-radius: 18px;
+  position: relative;
+  width: min(100%, 450px);
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
   background: #ffffff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.32);
+  animation: modal-open 0.2s ease-out;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+@keyframes modal-open {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
 
-.modal-header h2 {
-  margin: 0;
-  color: #172033;
-  font-size: 22px;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 34px;
+  height: 34px;
   border: 0;
-  background: transparent;
-  color: #667085;
-  font-size: 28px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 23px;
   cursor: pointer;
 }
 
+.modal-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 18px;
+  background: #eff6ff;
+  font-size: 27px;
+}
+
+.modal-icon--danger {
+  background: #fef2f2;
+}
+
+.modal-header {
+  margin-top: 22px;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.modal-header h2 {
+  margin: 6px 0 0;
+  color: #172033;
+  font-size: 25px;
+  letter-spacing: -0.03em;
+}
+
 .modal-description {
-  margin: 14px 0 18px;
-  color: #667085;
-  line-height: 1.6;
+  margin: 14px 0 22px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .password-modal label {
   display: block;
   margin-bottom: 8px;
-  color: #344054;
-  font-weight: 800;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .password-modal input {
   width: 100%;
-  height: 46px;
+  height: 49px;
   padding: 0 14px;
-  border: 1px solid #d0d5dd;
-  border-radius: 10px;
+  border: 1px solid #dbe3eb;
+  border-radius: 12px;
   box-sizing: border-box;
+  font: inherit;
 }
 
 .password-modal input:focus {
   border-color: #2563eb;
-  outline: 3px solid rgba(37, 99, 235, 0.12);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .error-message {
   margin: 10px 0 0;
-  color: #d92d20;
-  font-size: 14px;
+  color: #dc2626;
+  font-size: 13px;
 }
 
 .modal-buttons {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 22px;
+  margin-top: 26px;
 }
 
 .primary-button,
 .secondary-button {
-  min-height: 42px;
-  padding: 0 17px;
-  border-radius: 9px;
-  font-weight: 800;
+  min-height: 46px;
+  border-radius: 12px;
+  font-weight: 900;
   cursor: pointer;
 }
 
@@ -218,14 +304,19 @@ function confirmPassword() {
   color: #ffffff;
 }
 
+.primary-button--danger {
+  border-color: #dc2626;
+  background: #dc2626;
+}
+
 .primary-button:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .secondary-button {
-  border: 1px solid #d0d5dd;
+  border: 1px solid #d7dee7;
   background: #ffffff;
-  color: #344054;
+  color: #475569;
 }
 </style>
