@@ -5,9 +5,6 @@
     </div>
 
     <div v-else>
-      <div v-if="loadState === 'loading'" class="map-placeholder">지도를 로딩 중입니다...</div>
-      <div v-else-if="loadState === 'error'" class="map-placeholder">오류: {{ loadError }}<br/>환경변수 `VITE_KAKAO_KEY`를 확인하세요.</div>
-      <div v-else>
       <div class="controls">
         <label>카테고리
           <select v-model="category">
@@ -20,6 +17,9 @@
         <button @click="applyFilter">적용</button>
       </div>
 
+      <div class="map-wrapper">
+        <div v-if="loadState === 'loading'" class="map-overlay">지도를 로딩 중입니다...</div>
+        <div v-else-if="loadState === 'error'" class="map-overlay">오류: {{ loadError }}<br/>환경변수 `VITE_KAKAO_KEY`를 확인하세요.</div>
         <div ref="mapEl" class="kakao-map" />
       </div>
     </div>
@@ -152,6 +152,19 @@ onBeforeUnmount(() => {
 .controls { display:flex; gap:8px; align-items:center }
 .kakao-map { width:100%; height:560px; }
 .map-placeholder { padding:16px; color:#666 }
+.
+.map-wrapper { position:relative }
+.map-overlay {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,0.9);
+  z-index: 10;
+  padding: 16px;
+  color:#666;
+}
 label { font-size:14px }
 button { padding:6px 10px }
 </style>
