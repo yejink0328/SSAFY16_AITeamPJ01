@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-const Home = () => import('../components/Home.vue')
 const BoardList = () => import('../components/BoardList.vue')
 const BoardDetail = () => import('../components/BoardDetail.vue')
 const BoardForm = () => import('../components/BoardForm.vue')
