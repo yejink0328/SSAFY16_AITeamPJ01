@@ -5,7 +5,7 @@ const BoardForm = () => import('../components/BoardForm.vue')
 
 const routes = [
   { path: '/', component: BoardList },
-  { path: '/board/:id', component: BoardDetail, props: true },
+  { path: '/board/:id', component: BoardDetail, props: (route) => ({ postId: route.params.id }) },
   {
     path: '/write',
     component: BoardForm,
