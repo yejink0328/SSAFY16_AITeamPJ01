@@ -3,42 +3,15 @@
     <div class="nav-inner">
       <div class="logo">LocalHub</div>
       <nav class="links">
-        <a href="#" class="nav-link" @click.prevent="goTo('/')">Community</a>
-        <a href="#" class="nav-link" @click.prevent="goTo('/map')">Map</a>
+        <router-link to="/" class="nav-link" active-class="active">Community</router-link>
+        <router-link to="/map" class="nav-link" active-class="active">Map</router-link>
       </nav>
-      <div class="current-route">{{ route.path }}</div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
-
-let router = null
-try {
-  // useRouter may throw if router is not provided yet; catch and fallback
-  // eslint-disable-next-line vue/prefer-use-router
-  router = (await import('vue-router')).useRouter()
-} catch (e) {
-  // ignore — we'll fallback to location.href when router unavailable
-  console.warn('NavBar: router not available yet, will fallback to full navigation')
-}
-const route = useRoute()
-
-function goTo(path) {
-  console.log('[NavBar] navigate to', path)
-  if (router && router.push) {
-    router.push(path).then(() => {
-      console.log('[NavBar] navigation succeeded, current:', router.currentRoute.value.fullPath)
-    }).catch((err) => {
-      console.error('[NavBar] navigation error', err)
-      window.alert('Navigation error: ' + (err && err.message ? err.message : String(err)))
-    })
-  } else {
-    // fallback: use full page navigation
-    window.location.href = path
-  }
-}
+// Simple router-link based nav — avoids programmatic router timing issues
 </script>
 
 <style scoped>
