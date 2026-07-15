@@ -1,13 +1,70 @@
 <script setup>
-import ChatWidget from '@/components/ChatWidget.vue'
-// 다른 팀원이 작업 중인 라우터/페이지 컴포넌트는 여기에 함께 들어오면 됩니다.
-// 예: import { RouterView } from 'vue-router'
+import { ref } from 'vue'
+
+import ChatWidget from '@/components/chatWidget.vue'
+import BoardList from '@/components/BoardList.vue'
+import BoardDetail from '@/components/BoardDetail.vue'
+import BoardForm from '@/components/BoardForm.vue'
+
+const currentView = ref('list')
+const selectedPostId = ref(null)
+const formMode = ref('create')
+
+function openPost(postId) {
+  selectedPostId.value = postId
+  currentView.value = 'detail'
+}
+
+function openWriteForm() {
+  selectedPostId.value = null
+  formMode.value = 'create'
+  currentView.value = 'form'
+}
+
+function openEditForm(postId) {
+  selectedPostId.value = postId
+  formMode.value = 'edit'
+  currentView.value = 'form'
+}
+
+function goToList() {
+  selectedPostId.value = null
+  currentView.value = 'list'
+}
+
+function goToDetail(postId) {
+  selectedPostId.value = postId
+  currentView.value = 'detail'
+}
 </script>
 
 <template>
   <div id="page-content">
-    <!-- 팀 전체 SPA 라우팅이 여기에 들어올 예정 -->
-    <h1>LocalHub</h1>
+    <BoardList
+      v-if="currentView === 'list'"
+      @select-post="openPost"
+      @write="openWriteForm"
+    />
+
+    <BoardDetail
+      v-else-if="currentView === 'detail'"
+      :post-id="selectedPostId"
+      @back="goToList"
+      @edit="openEditForm"
+      @deleted="goToList"
+    />
+
+    <BoardForm
+      v-else-if="currentView === 'form'"
+      :mode="formMode"
+      :post-id="selectedPostId"
+      @cancel="
+        formMode === 'edit'
+          ? goToDetail(selectedPostId)
+          : goToList()
+      "
+      @saved="goToDetail"
+    />
   </div>
 
   <ChatWidget />
