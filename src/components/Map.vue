@@ -96,10 +96,17 @@ async function initMap(key) {
       // show full Seoul bounds on initial load
       try {
         const bounds = new window.kakao.maps.LatLngBounds()
-        // approximate Seoul bounding box
-        bounds.extend(new window.kakao.maps.LatLng(37.701, 126.76))
-        bounds.extend(new window.kakao.maps.LatLng(37.413, 127.18))
+        // tighter Seoul bounding box (northEast and southWest)
+        bounds.extend(new window.kakao.maps.LatLng(37.701, 127.18)) // NE
+        bounds.extend(new window.kakao.maps.LatLng(37.413, 126.76)) // SW
         map.setBounds(bounds)
+        // Zoom in one level to make Seoul fill the viewport more tightly
+        try {
+          const lvl = map.getLevel()
+          map.setLevel(Math.max(1, lvl - 1))
+        } catch (e) {
+          // ignore if getLevel not available
+        }
       } catch (e) {
         console.warn('Failed to set initial Seoul bounds', e)
       }
