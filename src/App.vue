@@ -10,6 +10,7 @@ import ChatWidget from '@/components/ChatWidget.vue'
 import BoardList from '@/components/BoardList.vue'
 import BoardDetail from '@/components/BoardDetail.vue'
 import BoardForm from '@/components/BoardForm.vue'
+import TodayRecommendation from '@/components/TodayRecommendation.vue'
 
 const currentView = ref('home')
 const selectedPostId = ref(null)
@@ -193,8 +194,8 @@ function scrollToTop() {
             </p>
 
             <h1>
-              서울의 오늘을<br />
-              가까운 사람들과 나눠보세요.
+              <span>서울의 오늘을</span>
+              <span>가까운 사람들과 나눠보세요.</span>
             </h1>
 
             <p class="hero-description">
@@ -275,6 +276,8 @@ function scrollToTop() {
             전체 게시판 보기
           </button>
         </section>
+
+        <TodayRecommendation />
       </template>
 
       <section
@@ -690,7 +693,16 @@ textarea:focus-visible {
     0 1px 1px rgba(0, 0, 0, 0.28);
 }
 
+.hero-section h1 span {
+  display: block;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+
 .hero-description {
+  word-break: keep-all;
+  overflow-wrap: normal;
   max-width: 620px;
   margin: 0;
   color: rgba(244, 251, 252, 0.92);
