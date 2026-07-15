@@ -11,8 +11,11 @@
             <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
           </select>
         </label>
-        <label>구 입력 (예: 강남구)
-          <input v-model="district" placeholder="예: 종로구" />
+        <label>구 선택
+          <select v-model="district">
+            <option value="">전체</option>
+            <option v-for="g in districtOptions" :key="g" :value="g">{{ g }}</option>
+          </select>
         </label>
         <button @click="applyFilter">적용</button>
       </div>
@@ -43,7 +46,12 @@ let clusterer = null
 const loadState = ref('idle') // 'idle' | 'loading' | 'ready' | 'error'
 const loadError = ref('')
 
-const categories = ['관광지','숙박','축제공연행사','문화시설','레포츠','여행코스','쇼핑']
+const categories = ['관광지','숙박','축제공연사','문화시설','레포츠','여행코스','쇼핑']
+
+const districtOptions = [
+  '종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구',
+  '은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'
+]
 
 const category = ref('관광지')
 const district = ref('')
