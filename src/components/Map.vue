@@ -93,9 +93,19 @@ async function initMap(key) {
     try {
       const center = new window.kakao.maps.LatLng(37.566826, 126.978656)
       map = new window.kakao.maps.Map(mapEl.value, { center, level: 8 })
+      // show full Seoul bounds on initial load
+      try {
+        const bounds = new window.kakao.maps.LatLngBounds()
+        // approximate Seoul bounding box
+        bounds.extend(new window.kakao.maps.LatLng(37.701, 126.76))
+        bounds.extend(new window.kakao.maps.LatLng(37.413, 127.18))
+        map.setBounds(bounds)
+      } catch (e) {
+        console.warn('Failed to set initial Seoul bounds', e)
+      }
       clusterer = new window.kakao.maps.MarkerClusterer({ map, averageCenter: true, minLevel: 6 })
-      // initial load
-      applyFilter()
+      // initial load (do not recenter on first auto-load)
+      applyFilter(false)
     } catch (err) {
       console.error('Map init error', err)
       throw err
@@ -103,7 +113,7 @@ async function initMap(key) {
   })
 }
 
-async function applyFilter() {
+async function applyFilter(centerIfNeeded = true) {
   if (!map) {
     console.warn('applyFilter called but map is not initialized')
     return
@@ -152,7 +162,7 @@ async function applyFilter() {
 
   markers = markerList
   if (clusterer && clusterer.addMarkers) clusterer.addMarkers(markers)
-  if (markers.length > 0) map.setCenter(markers[0].getPosition())
+  if (markers.length > 0 && centerIfNeeded) map.setCenter(markers[0].getPosition())
 }
 
 onMounted(() => {
