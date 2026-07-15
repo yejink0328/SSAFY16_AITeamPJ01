@@ -1,7 +1,7 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import BoardList from '@/components/BoardList.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <BoardList />
 </template>
