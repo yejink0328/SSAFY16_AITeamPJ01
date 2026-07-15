@@ -87,6 +87,11 @@ function closePasswordModal() {
   modalError.value = ''
 }
 
+function goBack() {
+  emit('back')
+  router.push({ path: '/' })
+}
+
 function confirmPassword(password) {
   const matched = verifyPassword(
     props.postId,
@@ -245,7 +250,7 @@ function formatDateTime(dateString) {
 
           <button
             type="button"
-            @click="emit('back')"
+              @click="goBack"
           >
             다른 이야기 둘러보기
           </button>
