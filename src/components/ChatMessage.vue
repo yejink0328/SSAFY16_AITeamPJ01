@@ -1,13 +1,20 @@
 <template>
   <div class="chat-message" :class="role">
-    <div class="bubble">{{ content }}</div>
+    <div class="bubble-col">
+      <div class="bubble">{{ content }}</div>
+      <KakaoMapEmbed v-if="places?.length" :places="places" :route="route" />
+    </div>
   </div>
 </template>
 
 <script setup>
+import KakaoMapEmbed from './KakaoMapEmbed.vue'
+
 defineProps({
   role: { type: String, required: true }, // 'user' | 'assistant'
   content: { type: String, required: true },
+  places: { type: Array, default: () => [] },
+  route: { type: Boolean, default: false },
 })
 </script>
 
@@ -22,14 +29,21 @@ defineProps({
 .chat-message.assistant {
   justify-content: flex-start;
 }
-.bubble {
+.bubble-col {
+  display: flex;
+  flex-direction: column;
   max-width: 75%;
-  padding: 10px 14px;
+}
+.bubble {
+  padding: 11px 15px;
   border-radius: 14px;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: -0.2px;
   white-space: pre-wrap;
-  word-break: break-word;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 .chat-message.user .bubble {
   background: #2563eb;
