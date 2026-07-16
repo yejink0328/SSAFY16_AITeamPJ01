@@ -197,34 +197,6 @@ onBeforeUnmount(() => {
   padding: 4px 0;
 }
 
-.suggestions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  margin: 6px 0;
-}
-
-.suggestion-chip {
-  border: 1px solid #2563eb;
-  background: #fff;
-  color: #2563eb;
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.suggestion-chip:hover {
-  background: #eff6ff;
-}
-
-.suggestion-chip:disabled {
-  border-color: #ccc;
-  color: #999;
-  cursor: not-allowed;
-}
-
 /* 모바일: 전체 화면으로 전환 (RFP 요구사항) */
 @media (max-width: 480px) {
   .chat-widget {

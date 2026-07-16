@@ -38,13 +38,12 @@ function splitSuggestions(answer) {
 }
 
 export function useChat() {
-  const messages = ref([{ role: 'assistant', content: GREETING }])
+  const messages = ref([]) // { role: 'user' | 'assistant', content: string }
   const loading = ref(false)
 
   async function sendMessage(question) {
     if (!question?.trim()) return
 
-    const history = messages.value.slice(1) // 인사말 제외
     messages.value.push({ role: 'user', content: question })
     loading.value = true
 
@@ -55,15 +54,14 @@ export function useChat() {
       const places = extractPlaces(context)
       const route = isRouteQuestion(question)
       messages.value.push({ role: 'assistant', content: text, places, route, suggestions })
+      const answer = await askChatbot(question, context, messages.value)
+      messages.value.push({ role: 'assistant', content: answer })
     } catch (e) {
       console.error(e)
-      const raw = e?.message || ''
-      const userFriendly =
-        raw.includes('model_not_found') || raw.includes('does not have access to model')
-          ? '사용 가능한 모델에 대한 접근 권한이 없습니다. 관리자에게 문의하세요.'
-          : raw || '죄송해요, 잠시 후 다시 시도해주세요.'
-
-      messages.value.push({ role: 'assistant', content: userFriendly })
+      messages.value.push({
+        role: 'assistant',
+        content: '죄송해요, 잠시 후 다시 시도해주세요.',
+      })
     } finally {
       loading.value = false
     }
