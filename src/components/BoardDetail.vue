@@ -17,6 +17,7 @@ const props = defineProps({
   },
 })
 
+
 const emit = defineEmits(['back', 'edit', 'deleted'])
 
 const post = ref(null)
@@ -41,6 +42,8 @@ watch(
     loadPost()
   },
 )
+
+// also reload when route param changes (robustness for navigation)
 
 function loadPost() {
   const selectedPost = getPostById(props.postId)
@@ -68,6 +71,10 @@ function openPasswordModal(action) {
 function closePasswordModal() {
   modalOpen.value = false
   modalError.value = ''
+}
+
+function goBack() {
+  emit('back')
 }
 
 function confirmPassword(password) {

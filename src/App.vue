@@ -11,6 +11,7 @@ import BoardList from '@/components/BoardList.vue'
 import BoardDetail from '@/components/BoardDetail.vue'
 import BoardForm from '@/components/BoardForm.vue'
 import TodayRecommendation from '@/components/TodayRecommendation.vue'
+import Map from '@/components/Map.vue'
 
 const currentView = ref('home')
 const selectedPostId = ref(null)
@@ -277,36 +278,10 @@ function scrollToTop() {
           </button>
         </section>
 
-        <TodayRecommendation />
+        <!-- <TodayRecommendation /> -->
       </template>
 
-      <section
-        v-else-if="currentView === 'map'"
-        class="map-placeholder"
-      >
-        <div class="map-placeholder__icon">
-          🗺️
-        </div>
-
-        <p class="section-eyebrow">
-          LOCALHUB MAP
-        </p>
-
-        <h1>지도 페이지 준비 중입니다.</h1>
-
-        <p>
-          지도 기능이 완성되면 이 메뉴에서 바로 연결할
-          수 있도록 화면 구조를 미리 만들어두었습니다.
-        </p>
-
-        <button
-          type="button"
-          class="primary-button"
-          @click="goHome"
-        >
-          홈으로 돌아가기
-        </button>
-      </section>
+      <Map v-else-if = "currentView === 'map'" />
 
       <BoardList
         v-else-if="currentView === 'list'"
