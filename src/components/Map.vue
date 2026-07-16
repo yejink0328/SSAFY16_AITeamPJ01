@@ -1,36 +1,87 @@
 <template>
-  <div class="map-container">
-    <div v-if="!effectiveKey" class="map-placeholder">
-      카카오 앱키가 설정되어 있지 않습니다. App.vue에서 prop으로 apiKey를 전달하거나 .env의 VITE_KAKAO_KEY를 설정하세요.
-    </div>
+  <div class="map-page">
+    <header class="page-heading">
+      <div>
+        <p class="page-eyebrow">MAP</p>
+        <h1>서울 추천 지도</h1>
+        <p class="page-description">카테고리와 구를 선택하면 자동으로 지도에 장소가 표시됩니다.</p>
+      </div>
+    </header>
 
-    <div v-else>
-      <div class="controls">
-        <label>카테고리
-          <select v-model="category">
-            <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
-          </select>
-        </label>
-        <label>구 선택
-          <select v-model="district">
-            <option value="">전체</option>
-            <option v-for="g in districtOptions" :key="g" :value="g">{{ g }}</option>
-          </select>
-        </label>
-        <button @click="applyFilter">적용</button>
+    <section class="map-card">
+      <div class="map-toolbar">
+        <div class="map-field category-toolbar">
+          <p class="filter-section-title">카테고리</p>
+          <div class="category-list horizontal" role="listbox" aria-label="카테고리 선택">
+            <button
+              type="button"
+              class="filter-button"
+              :class="{ active: category === '전체' }"
+              @click="category = '전체'"
+            >
+              전체
+            </button>
+            <button
+              v-for="c in categories.filter((item) => item !== '전체')"
+              :key="c"
+              type="button"
+              class="filter-button"
+              :class="{ active: category === c }"
+              @click="category = c"
+            >
+              {{ c }}
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="map-wrapper">
-        <div v-if="loadState === 'loading'" class="map-overlay">지도를 로딩 중입니다...</div>
-        <div v-else-if="loadState === 'error'" class="map-overlay">오류: {{ loadError }}<br/>환경변수 `VITE_KAKAO_KEY`를 확인하세요.</div>
-        <div ref="mapEl" class="kakao-map" />
+      <div class="map-layout">
+        <aside class="map-sidebar">
+          <div class="map-sidebar-card">
+            <p class="filter-section-title">구 선택</p>
+            <div class="district-list vertical" role="listbox" aria-label="구 선택">
+              <button
+                type="button"
+                class="filter-button"
+                :class="{ active: district === '' }"
+                @click="district = ''"
+              >
+                전체
+              </button>
+              <button
+                v-for="g in districtOptions"
+                :key="g"
+                type="button"
+                class="filter-button"
+                :class="{ active: district === g }"
+                @click="district = g"
+              >
+                {{ g }}
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <div class="map-content">
+          <div v-if="!effectiveKey" class="map-placeholder">
+            카카오 앱키가 설정되어 있지 않습니다. App.vue에서 prop으로 apiKey를 전달하거나 .env의 VITE_KAKAO_KEY를 설정하세요.
+          </div>
+
+          <div v-else class="map-wrapper">
+            <div v-if="loadState === 'loading'" class="map-overlay">지도를 로딩 중입니다...</div>
+            <div v-else-if="loadState === 'error'" class="map-overlay">
+              오류: {{ loadError }}<br />환경변수 `VITE_KAKAO_KEY`를 확인하세요.
+            </div>
+            <div ref="mapEl" class="kakao-map" />
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { filterByCategoryAndDistrict } from '@/services/dataFilter.js'
 
 // props: kakao API key passed from parent (optional)
@@ -47,15 +98,21 @@ let currentInfoWindow = null
 const loadState = ref('idle') // 'idle' | 'loading' | 'ready' | 'error'
 const loadError = ref('')
 
-const categories = ['전체','관광지','숙박','축제공연사','문화시설','레포츠','여행코스','쇼핑']
+const categories = ['전체', '관광지', '숙박', '축제공연사', '문화시설', '레포츠', '여행코스', '쇼핑']
 
 const districtOptions = [
-  '종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구',
-  '은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'
+  '종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구', '노원구',
+  '은평구', '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구',
 ]
 
 const category = ref('관광지')
 const district = ref('')
+
+watch([category, district], () => {
+  if (loadState.value === 'ready') {
+    applyFilter()
+  }
+})
 
 function loadKakaoScript(key) {
   return new Promise((resolve, reject) => {
@@ -65,20 +122,20 @@ function loadKakaoScript(key) {
     script.async = true
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${key}&autoload=false&libraries=clusterer,services`
     script.onload = () => resolve()
-    script.onerror = (e) => reject(new Error('Failed to load Kakao Maps SDK'))
+    script.onerror = () => reject(new Error('Failed to load Kakao Maps SDK'))
     document.head.appendChild(script)
   })
 }
 
 async function initMap(key) {
   await loadKakaoScript(key)
-  // Wait until mapEl is attached to document
+
   const waitForElement = async (timeout = 2000) => {
     const interval = 100
     let waited = 0
     while ((!mapEl.value || !document.contains(mapEl.value)) && waited < timeout) {
       // eslint-disable-next-line no-await-in-loop
-      await new Promise((r) => setTimeout(r, interval))
+      await new Promise((resolve) => setTimeout(resolve, interval))
       waited += interval
     }
     return Boolean(mapEl.value && document.contains(mapEl.value))
@@ -93,14 +150,12 @@ async function initMap(key) {
     try {
       const center = new window.kakao.maps.LatLng(37.566826, 126.978656)
       map = new window.kakao.maps.Map(mapEl.value, { center, level: 8 })
-      // show full Seoul bounds on initial load
+
       try {
         const bounds = new window.kakao.maps.LatLngBounds()
-        // tighter Seoul bounding box (northEast and southWest)
-        bounds.extend(new window.kakao.maps.LatLng(37.701, 127.18)) // NE
-        bounds.extend(new window.kakao.maps.LatLng(37.413, 126.76)) // SW
+        bounds.extend(new window.kakao.maps.LatLng(37.701, 127.18))
+        bounds.extend(new window.kakao.maps.LatLng(37.413, 126.76))
         map.setBounds(bounds)
-        // Zoom in one level to make Seoul fill the viewport more tightly
         try {
           const lvl = map.getLevel()
           map.setLevel(Math.max(1, lvl - 1))
@@ -110,8 +165,8 @@ async function initMap(key) {
       } catch (e) {
         console.warn('Failed to set initial Seoul bounds', e)
       }
+
       clusterer = new window.kakao.maps.MarkerClusterer({ map, averageCenter: true, minLevel: 6 })
-      // initial load (do not recenter on first auto-load)
       applyFilter(false)
     } catch (err) {
       console.error('Map init error', err)
@@ -125,37 +180,40 @@ async function applyFilter(centerIfNeeded = true) {
     console.warn('applyFilter called but map is not initialized')
     return
   }
-  // clear existing markers
-  // close any open info window
+
   if (currentInfoWindow && currentInfoWindow.close) {
-    try { currentInfoWindow.close() } catch (e) {}
+    try {
+      currentInfoWindow.close()
+    } catch (e) {
+      // ignore
+    }
     currentInfoWindow = null
   }
 
-  markers.forEach((m) => m.setMap(null))
+  markers.forEach((marker) => marker.setMap(null))
   markers = []
   if (clusterer && clusterer.clear) clusterer.clear()
 
   const items = await filterByCategoryAndDistrict(category.value, district.value, 500)
   const kakao = window.kakao
-    const markerList = items.map((it) => {
+  const markerList = items.map((it) => {
     const position = new kakao.maps.LatLng(it.mapy, it.mapx)
     const marker = new kakao.maps.Marker({ position })
     const imgHtml = it.image
-      ? `<div style="flex:0 0 96px; margin-right:8px"><img src="${it.image}" alt="${it.title}" style="width:96px;height:96px;object-fit:cover;border-radius:8px;display:block;"/></div>`
+      ? `<div style="flex:0 0 96px; margin-right:8px"><img src="${it.image}" alt="${it.title}" style="width:96px;height:96px;object-fit:cover;border-radius:0;display:block;"/></div>`
       : ''
+    const mapLink = `https://map.naver.com/p/search/${encodeURIComponent(`${it.title} ${it.addr}`)}`
     const infoHtml = `
-      <div style="display:flex;gap:8px;max-width:260px;align-items:flex-start">
+      <a href="${mapLink}" target="_blank" rel="noopener noreferrer" style="display:flex;gap:8px;max-width:260px;align-items:flex-start;text-decoration:none;color:inherit;cursor:pointer;">
         ${imgHtml}
         <div style="padding:8px;flex:1;min-width:0">
           <strong style="display:block;margin-bottom:6px">${it.title}</strong>
           <div style="font-size:13px;color:#555">${it.addr}</div>
         </div>
-      </div>
+      </a>
     `
     const infowindow = new kakao.maps.InfoWindow({ content: infoHtml })
     marker.addListener('click', () => {
-      // close previously opened info window
       try {
         if (currentInfoWindow && currentInfoWindow.close) currentInfoWindow.close()
       } catch (e) {
@@ -193,10 +251,14 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  markers.forEach((m) => m.setMap(null))
+  markers.forEach((marker) => marker.setMap(null))
   if (clusterer && clusterer.clear) clusterer.clear()
   if (currentInfoWindow && currentInfoWindow.close) {
-    try { currentInfoWindow.close() } catch (e) {}
+    try {
+      currentInfoWindow.close()
+    } catch (e) {
+      // ignore
+    }
     currentInfoWindow = null
   }
 })
