@@ -59,17 +59,26 @@ export async function filterRelevantData(question) {
 
 // 특정 카테고리와 구(예: '강남구')로 필터링해서 좌표를 포함한 항목 반환
 export async function filterByCategoryAndDistrict(category = '관광지', district = '', limit = 200) {
-  const loader = dataLoaders[category]
-  if (!loader) return []
-  const mod = await loader()
-  const items = mod.default.items ?? []
+  const targetCategories =
+    !category || category === '전체'
+      ? Object.keys(dataLoaders)
+      : [category]
 
-  // district가 비어있으면 전체 반환, 있으면 addr1에 district 문자열 포함 여부로 필터
+  const results = await Promise.all(
+    targetCategories.map(async (categoryKey) => {
+      const loader = dataLoaders[categoryKey]
+      if (!loader) return []
+      const mod = await loader()
+      return mod.default.items ?? []
+    })
+  )
+
+  const combined = results.flat()
+
   const filtered = district
-    ? items.filter((it) => (it.addr1 || '').includes(district))
-    : items
+    ? combined.filter((it) => (it.addr1 || '').includes(district))
+    : combined
 
-  // 변환 및 좌표가 있는 항목만 반환
   const mapped = filtered
     .filter((it) => it.mapx && it.mapy)
     .map((it) => ({
