@@ -278,7 +278,7 @@ function scrollToTop() {
           </button>
         </section>
 
-        <!-- <TodayRecommendation /> -->
+        <TodayRecommendation />
       </template>
 
       <Map v-else-if = "currentView === 'map'" />
