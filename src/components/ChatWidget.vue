@@ -19,19 +19,6 @@
           :role="msg.role"
           :content="msg.content"
         />
-
-        <div v-if="messages.length === 1" class="suggestions">
-          <button
-            v-for="q in suggestedQuestions"
-            :key="q"
-            class="suggestion-chip"
-            :disabled="loading"
-            @click="sendMessage(q)"
-          >
-            {{ q }}
-          </button>
-        </div>
-
         <div v-if="loading" class="loading">답변 작성 중...</div>
       </div>
 
@@ -49,8 +36,6 @@ import ChatInput from './ChatInput.vue'
 const open = ref(false)
 const bodyRef = ref(null)
 const { messages, loading, sendMessage } = useChat()
-
-const suggestedQuestions = ['서울 관광지 추천해줘', '이번 축제 일정 알려줘', '가볼만한 쇼핑 명소 알려줘']
 
 // 새 메시지 오면 스크롤 맨 아래로
 watch(messages, async () => {
@@ -122,34 +107,6 @@ watch(messages, async () => {
   font-size: 13px;
   color: #888;
   padding: 4px 0;
-}
-
-.suggestions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  margin: 6px 0;
-}
-
-.suggestion-chip {
-  border: 1px solid #2563eb;
-  background: #fff;
-  color: #2563eb;
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.suggestion-chip:hover {
-  background: #eff6ff;
-}
-
-.suggestion-chip:disabled {
-  border-color: #ccc;
-  color: #999;
-  cursor: not-allowed;
 }
 
 /* 모바일: 전체 화면으로 전환 (RFP 요구사항) */

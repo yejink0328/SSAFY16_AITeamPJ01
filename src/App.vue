@@ -1,9 +1,359 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue'
+
+import ChatWidget from '@/components/ChatWidget.vue'
+import BoardList from '@/components/BoardList.vue'
+import BoardDetail from '@/components/BoardDetail.vue'
+import BoardForm from '@/components/BoardForm.vue'
+import TodayRecommendation from '@/components/TodayRecommendation.vue'
+
+const currentView = ref('home')
+const selectedPostId = ref(null)
+const formMode = ref('create')
+
+const viewVersion = ref(0)
+const isScrolled = ref(false)
+const heroProgress = ref(0)
+
+const componentKey = computed(() => {
+  return [
+    currentView.value,
+    selectedPostId.value ?? 'none',
+    formMode.value,
+    viewVersion.value,
+  ].join('-')
+})
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, {
+    passive: true,
+  })
+
+  handleScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+function handleScroll() {
+  const scrollY = window.scrollY
+  const heroHeight = Math.max(window.innerHeight, 1)
+
+  isScrolled.value = scrollY > 15
+  heroProgress.value = Math.min(scrollY / heroHeight, 1)
+}
+
+function changeView(view) {
+  currentView.value = view
+  viewVersion.value += 1
+  scrollToTop()
+}
+
+function goHome() {
+  selectedPostId.value = null
+  formMode.value = 'create'
+  changeView('home')
+}
+
+function goToList() {
+  selectedPostId.value = null
+  formMode.value = 'create'
+  changeView('list')
+}
+
+function openMap() {
+  selectedPostId.value = null
+  formMode.value = 'create'
+  changeView('map')
+}
+
+function openPost(postId) {
+  selectedPostId.value = postId
+  changeView('detail')
+}
+
+function openWriteForm() {
+  selectedPostId.value = null
+  formMode.value = 'create'
+  changeView('form')
+}
+
+function openEditForm(postId) {
+  selectedPostId.value = postId
+  formMode.value = 'edit'
+  changeView('form')
+}
+
+function goToDetail(postId) {
+  selectedPostId.value = postId
+  changeView('detail')
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 </script>
 
 <template>
-  <HelloWorld />
+  <div class="app-shell">
+    <header
+      class="site-header"
+      :class="{
+        'site-header--scrolled': isScrolled,
+      }"
+    >
+      <button
+        type="button"
+        class="site-brand"
+        @click="goHome"
+      >
+        <span class="site-brand__icon">📍</span>
+
+        <span>
+          <strong>LocalHub</strong>
+          <small>SEOUL COMMUNITY</small>
+        </span>
+      </button>
+
+      <nav class="site-nav">
+        <button
+          type="button"
+          :class="{
+            active: currentView === 'home',
+          }"
+          @click="goHome"
+        >
+          홈
+        </button>
+
+        <button
+          type="button"
+          :class="{
+            active: currentView === 'map',
+          }"
+          @click="openMap"
+        >
+          지도
+        </button>
+
+        <button
+          type="button"
+          :class="{
+            active: ['list', 'detail'].includes(
+              currentView,
+            ),
+          }"
+          @click="goToList"
+        >
+          커뮤니티
+        </button>
+
+        <button
+          type="button"
+          class="write-nav-button"
+          :class="{
+            active: currentView === 'form',
+          }"
+          @click="openWriteForm"
+        >
+          글쓰기
+        </button>
+      </nav>
+    </header>
+
+    <div id="page-content">
+      <template v-if="currentView === 'home'">
+        <section
+          class="hero-section"
+          :style="{
+            '--hero-progress': heroProgress,
+          }"
+        >
+          <div class="hero-decoration hero-decoration--one">
+          </div>
+
+          <div class="hero-decoration hero-decoration--two">
+          </div>
+
+          <div class="hero-sparkles" aria-hidden="true">
+            <span v-for="sparkle in 14" :key="sparkle"></span>
+          </div>
+
+          <div class="hero-content">
+            <p class="hero-eyebrow">
+              LOCALHUB SEOUL COMMUNITY
+            </p>
+
+            <h1>
+              <span>서울의 오늘을</span>
+              <span>가까운 사람들과 나눠보세요.</span>
+            </h1>
+
+            <p class="hero-description">
+              지역 주민과 여행자가 맛집, 행사, 교통,
+              여행 정보를 자유롭게 공유하는 서울 익명
+              커뮤니티입니다.
+            </p>
+
+            <div class="hero-buttons">
+              <button
+                type="button"
+                class="primary-button"
+                @click="goToList"
+              >
+                커뮤니티 둘러보기
+              </button>
+
+              <button
+                type="button"
+                class="secondary-button"
+                @click="openWriteForm"
+              >
+                새 글 작성하기
+              </button>
+            </div>
+
+            <div class="scroll-guide">
+              <span>SCROLL</span>
+              <i></i>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <span class="hero-card__badge">
+              LOCAL TIP
+            </span>
+
+            <strong>
+              지금 서울에서 필요한 정보를 한눈에
+            </strong>
+
+            <p>
+              맛집과 행사, 교통 상황부터 여행 팁까지
+              다양한 서울 정보를 직접 작성하고 확인할
+              수 있습니다.
+            </p>
+
+            <button
+              type="button"
+              @click="goToList"
+            >
+              최신 게시글 보기 →
+            </button>
+          </aside>
+        </section>
+
+        <section class="community-preview">
+          <div>
+            <p class="section-eyebrow">
+              COMMUNITY BOARD
+            </p>
+
+            <h2>
+              실시간으로 쌓이는 서울 지역 이야기
+            </h2>
+
+            <p>
+              커뮤니티 메뉴를 누르면 지금까지 작성된
+              모든 게시글을 일반 게시판 형태로 확인할
+              수 있습니다.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            @click="goToList"
+          >
+            전체 게시판 보기
+          </button>
+        </section>
+
+        <TodayRecommendation />
+      </template>
+
+      <section
+        v-else-if="currentView === 'map'"
+        class="map-placeholder"
+      >
+        <div class="map-placeholder__icon">
+          🗺️
+        </div>
+
+        <p class="section-eyebrow">
+          LOCALHUB MAP
+        </p>
+
+        <h1>지도 페이지 준비 중입니다.</h1>
+
+        <p>
+          지도 기능이 완성되면 이 메뉴에서 바로 연결할
+          수 있도록 화면 구조를 미리 만들어두었습니다.
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          @click="goHome"
+        >
+          홈으로 돌아가기
+        </button>
+      </section>
+
+      <BoardList
+        v-else-if="currentView === 'list'"
+        :key="componentKey"
+        @select-post="openPost"
+        @write="openWriteForm"
+      />
+
+      <BoardDetail
+        v-else-if="currentView === 'detail'"
+        :key="componentKey"
+        :post-id="selectedPostId"
+        @back="goToList"
+        @edit="openEditForm"
+        @deleted="goToList"
+      />
+
+      <BoardForm
+        v-else-if="currentView === 'form'"
+        :key="componentKey"
+        :mode="formMode"
+        :post-id="selectedPostId"
+        @cancel="
+          formMode === 'edit'
+            ? goToDetail(selectedPostId)
+            : goToList()
+        "
+        @saved="goToDetail"
+      />
+    </div>
+
+    <footer class="site-footer">
+      <div>
+        <strong>📍 LocalHub Seoul</strong>
+
+        <p>
+          지역 주민과 여행객이 함께 만드는 서울 커뮤니티
+        </p>
+      </div>
+
+      <span>
+        © 2026 LocalHub Team
+      </span>
+    </footer>
+  </div>
+
+  <ChatWidget />
 </template>
 
 <style>
