@@ -1,4 +1,5 @@
 <script setup>
+
 import { computed, onMounted, ref, watch } from 'vue'
 import { getPosts } from '@/services/boardStorage'
 
@@ -46,7 +47,9 @@ watch(totalPages, (pageCount) => {
   }
 })
 
+
 onMounted(loadPosts)
+
 
 function loadPosts() {
   posts.value = getPosts()
@@ -57,6 +60,7 @@ function searchPosts() {
 }
 
 function openPost(postId) {
+  // emit for backward compatibility, and navigate using router for SPA
   emit('select-post', postId)
 }
 

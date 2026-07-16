@@ -19,6 +19,7 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel', 'saved'])
 
+
 const titleInput = ref(null)
 
 const form = reactive({
@@ -119,6 +120,7 @@ function submitPost() {
 
     form.password = ''
     emit('saved', savedPost.id)
+    // SPA navigation: go to the newly created/updated post detail
   } catch (error) {
     form.password = ''
     errors.password = error.message

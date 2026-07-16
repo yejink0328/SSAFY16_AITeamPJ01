@@ -56,6 +56,7 @@ function closeModal() {
 }
 
 function confirmPassword() {
+
   const enteredPassword = password.value
 
   if (!enteredPassword) {
@@ -64,6 +65,7 @@ function confirmPassword() {
   }
 
   emit('confirm', enteredPassword)
+
 }
 </script>
 
