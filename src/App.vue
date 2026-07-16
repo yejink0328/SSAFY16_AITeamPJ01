@@ -278,14 +278,14 @@ function scrollToTop() {
           </button>
         </section>
 
-        <!-- <TodayRecommendation /> -->
+        <TodayRecommendation />
       </template>
 
       <Map v-else-if = "currentView === 'map'" />
 
       <BoardList
         v-else-if="currentView === 'list'"
-        :key="componentKey"
+        :key="'list-' + componentKey"
         @select-post="openPost"
         @write="openWriteForm"
       />
