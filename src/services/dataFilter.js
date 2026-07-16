@@ -30,6 +30,8 @@ function simplifyItems(items, limit = 15) {
     title: item.title,
     addr: item.addr1,
     tel: item.tel || '정보 없음',
+    lat: item.mapy,
+    lng: item.mapx,
   }))
 }
 

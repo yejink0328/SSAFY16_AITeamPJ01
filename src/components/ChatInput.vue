@@ -36,19 +36,21 @@ function submit() {
 }
 .chat-input input {
   flex: 1;
-  padding: 8px 12px;
+  padding: 9px 14px;
   border: 1px solid #ddd;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 15px;
+  letter-spacing: -0.2px;
   outline: none;
 }
 .chat-input button {
-  padding: 8px 16px;
+  padding: 9px 16px;
   border: none;
   border-radius: 20px;
   background: #2563eb;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
 }
 .chat-input button:disabled {
