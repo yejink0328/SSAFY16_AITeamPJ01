@@ -310,14 +310,14 @@ function scrollToTop() {
 
       <BoardList
         v-else-if="currentView === 'list'"
-        :key="componentKey"
+        :key="'list-' + componentKey"
         @select-post="openPost"
         @write="openWriteForm"
       />
 
       <BoardDetail
         v-else-if="currentView === 'detail'"
-        :key="componentKey"
+        :key="'detail-' + componentKey"
         :post-id="selectedPostId"
         @back="goToList"
         @edit="openEditForm"
@@ -326,7 +326,7 @@ function scrollToTop() {
 
       <BoardForm
         v-else-if="currentView === 'form'"
-        :key="componentKey"
+        :key="'form-' + componentKey"
         :mode="formMode"
         :post-id="selectedPostId"
         @cancel="
